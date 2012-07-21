@@ -1,0 +1,17 @@
+Build.PL
+Changes
+LICENSE
+MANIFEST
+MANIFEST.SKIP
+META.json
+META.yml
+README
+dist.ini
+lib/Sah.pm
+lib/Sah.pod
+spectest/00-normalize_schema.yaml
+spectest/01-merge_clause_sets.yaml
+spectest/README.txt
+t/00-compile.t
+t/release-pod-coverage.t
+t/release-pod-syntax.t
