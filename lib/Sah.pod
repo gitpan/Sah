@@ -1,6 +1,6 @@
 package Sah; # just to make PodWeaver happy
 
-our $VERSION = '0.9.0'; # VERSION
+our $VERSION = '0.9.1'; # VERSION
 
 1;
 # ABSTRACT: Specification of Sah schema language
@@ -15,7 +15,16 @@ Sah - Specification of Sah schema language
 
 =head1 VERSION
 
-version 0.9.0
+version 0.9.1
+
+=head1 SPECIFICATION VERSION
+
+0.9
+
+=head1 STATUS
+
+In the 0.9.0 series, there will probably still be incompatible syntax changes
+between revision before the spec stabilizes into 1.0 series.
 
 =head1 OVERVIEW AND TERMINOLOGY
 
@@ -640,6 +649,10 @@ To be written.
 2009-03-30  - Data::Schema (first public release)
 
 previous: Schema-nested (internal)
+
+=head1 SEE ALSO
+
+L<Sah::Type>
 
 =head1 AUTHOR
 

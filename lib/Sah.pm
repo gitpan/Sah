@@ -1,6 +1,6 @@
 package Sah;
 
-our $VERSION = '0.9.0'; # VERSION
+our $VERSION = '0.9.1'; # VERSION
 
 1;
 # ABSTRACT: Sah schema (specification)
@@ -14,7 +14,7 @@ Sah - Sah schema (specification)
 
 =head1 VERSION
 
-version 0.9.0
+version 0.9.1
 
 =head1 AUTHOR
 

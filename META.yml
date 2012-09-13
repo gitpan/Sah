@@ -16,4 +16,4 @@ name: Sah
 resources:
   homepage: http://metacpan.org/release/Sah
   repository: http://github.com/sharyanto/perl-Sah
-version: 0.9.0
+version: 0.9.1
