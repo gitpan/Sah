@@ -1,20 +1,20 @@
 package Sah;
 
-our $VERSION = '0.9.1'; # VERSION
+our $VERSION = '0.9.2'; # VERSION
 
 1;
-# ABSTRACT: Sah schema (specification)
+# ABSTRACT: Schema for data structures (specification)
 
 __END__
 =pod
 
 =head1 NAME
 
-Sah - Sah schema (specification)
+Sah - Schema for data structures (specification)
 
 =head1 VERSION
 
-version 0.9.1
+version 0.9.2
 
 =head1 AUTHOR
 

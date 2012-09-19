@@ -9,6 +9,8 @@ README
 dist.ini
 lib/Sah.pm
 lib/Sah.pod
+lib/Sah/Examples.pod
+lib/Sah/FAQ.pod
 lib/Sah/Type.pod
 spectest/00-normalize_schema.yaml
 spectest/01-merge_clause_sets.yaml

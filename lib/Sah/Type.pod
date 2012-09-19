@@ -1,6 +1,6 @@
 package Sah::Type; # just to make PodWeaver happy
 
-our $VERSION = '0.9.1'; # VERSION
+our $VERSION = '0.9.2'; # VERSION
 
 1;
 # ABSTRACT: Standard types
@@ -17,7 +17,7 @@ Sah::Type - Standard types
 
 =head1 VERSION
 
-version 0.9.1
+version 0.9.2
 
 =head1 DESCRIPTION
 
@@ -469,6 +469,16 @@ C<num> stores numbers. This type assumes the Comparable and Sortable roles.
 =head1 TYPE: float
 
 C<int> stores real (floating-point) numbers. This type is derived from C<num>.
+
+=head2 Clauses
+
+=head3 is_nan => BOOL
+
+Require that number is a "NaN" (or "-NaN").
+
+=head2 is_inf => BOOL
+
+Require that number is an "Inf" or "Infinity" (or "-Inf" or "-Infinity").
 
 =head1 TYPE: int
 

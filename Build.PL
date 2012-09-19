@@ -12,12 +12,12 @@ my %module_build_args = (
   "configure_requires" => {
     "Module::Build" => "0.3601"
   },
-  "dist_abstract" => "Sah schema (specification)",
+  "dist_abstract" => "Schema for data structures (specification)",
   "dist_author" => [
     "Steven Haryanto <stevenharyanto\@gmail.com>"
   ],
   "dist_name" => "Sah",
-  "dist_version" => "0.9.1",
+  "dist_version" => "0.9.2",
   "license" => "perl",
   "module_name" => "Sah",
   "recommends" => {},
