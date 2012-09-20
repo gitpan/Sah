@@ -1,6 +1,6 @@
 package Sah::Type; # just to make PodWeaver happy
 
-our $VERSION = '0.9.2'; # VERSION
+our $VERSION = '0.9.3'; # VERSION
 
 1;
 # ABSTRACT: Standard types
@@ -17,7 +17,7 @@ Sah::Type - Standard types
 
 =head1 VERSION
 
-version 0.9.2
+version 0.9.3
 
 =head1 DESCRIPTION
 
@@ -31,11 +31,53 @@ This is the base type role, all Sah types must implement this role.
 
 The list below is ordered by priority, from highest to lowest.
 
-=head3 v => INT (default: 1)
+=head3 v => FLOAT (default: 1)
 
-Specify schema version. Should be C<1> at the moment. See also: L<DefHash>.
+From DefHash. Specify Sah version. Should be C<1> at the moment.
 
 Priority: 0 (checked first before everything else).
+
+=head3 defhash_v => FLOAT
+
+From DefHash. Normally there is no need to set this.
+
+=head3 schema_v => FLOAT (default: 1)
+
+Specify schema version. By default assumed to be 1 if not set.
+
+=head3 base_v => FLOAT (default: 1)
+
+Specify base schema version. By default assumed to be 1 if not set. Using a base
+schema with a different value will fail. Can be used to force child schemas to
+update whenever we change our schema. For example:
+
+ # schema: vocal
+ [str => {in => ['a', 'e', 'i', 'o', 'u']}]
+
+ # schema: consonant, defined in terms of 'vocal', by
+ [vocal => {match=>'\A[a-z]\z', 'in.max_ok'=>0}]
+
+However, if C<vocal> changes its implementation or structure to:
+
+ # the new vocal
+ [str => {match => '\A[aeiou]\z'}]
+
+then B<vocal> will break. To force B<consonant> to fail (so its author can
+update it):
+
+ # the new vocal
+ [str => {schema_v=>2, match => '\A[aeiou]\z'}]
+
+Since C<vocal>'s C<schema_v> is now 2, it is not the same as 1 (which is implied
+by C<consonant>, having the default value of C<base_v>). C<consonant>'s author
+might then update its own implementation to match C<vocal>:
+
+ # the adjusted consonant
+ [str => {base_v=>2, cset=>{match=>'\A[a-z]\z'}, 'match.max_ok' => 0}]
+
+Notice the matching of C<consonant>'s C<base_v> against C<vocal>'s C<schema_v>.
+C<consonant> might also add its own C<< schema_v=>2 >> so other schemas
+depending on it are forced to adjust, if needed.
 
 =head3 default => ANY
 
@@ -49,17 +91,17 @@ given default value first.
 
 =head3 default_lang => LOCALE_CODE (defaut: en_US)
 
-Set default language for this schema. Language-dependant attribute values (e.g.
-C<summary>, C<description>) will be assumed to be in the default language. See
-also: L<DefHash>.
+From DefHash. Set default language for this schema. Language-dependant attribute
+values (e.g. C<summary>, C<description>) will be assumed to be in the default
+language.
 
 Priority: 2 (very high), after C<default>.
 
 =head3 name => STR
 
-A short (usually single-word, without any formatting) to name the schema, useful
-for identifying the schema when used as a type for human compiler. See also:
-L<DefHash>.
+From DefHash. A short (usually single-word, without any formatting) to name the
+schema, useful for identifying the schema when used as a type for human
+compiler.
 
 To store translations, you can use the C<alt.lang.*> clause attributes.
 
@@ -77,10 +119,10 @@ See also: C<summary>, C<description>, C<tags>.
 
 =head3 summary => STR
 
-A one-line text (about 72 characters maximum, without any formatting) to
-describe the schema. This is useful, e.g. for manually describe a schema instead
-of using the human compiler. It can also be used in form field labels. See also:
-L<DefHash>.
+From DefHash. A one-line text (about 72 characters maximum, without any
+formatting) to describe the schema. This is useful, e.g. for manually describe a
+schema instead of using the human compiler. It can also be used in form field
+labels.
 
 To store translations, you can use the C<alt.lang.*> clause attributes.
 
@@ -105,8 +147,8 @@ See also: C<name>, C<description>, C<tags>.
 
 =head3 description => STR
 
-A longer text (a paragraph or more) to describe the schema, useful e.g. for
-help/usage text. Text should be in Markdown format. See also: L<DefHash>.
+From DefHash. A longer text (a paragraph or more) to describe the schema, useful
+e.g. for help/usage text. Text should be in Markdown format.
 
 To store translations, you can use the C<alt.lang.*> clause attributes.
 
@@ -139,7 +181,7 @@ See also: C<name>, C<summary>, C<tags>.
 
 =head3 tags => ARRAY OF STR
 
-A list of tags, can be used to categorize schemas. See also: L<DefHash>.
+From DefHash. A list of tags, can be used to categorize schemas.
 
 Priority: 2 (very high), after C<default>.
 
@@ -205,7 +247,7 @@ Evaluate a clause set.
 
 Priority: 50 (normal)
 
-=head3 if => [CLAUSE1=>VAL, CLAUSE2=>VAL]
+=head3 if_clause => [CLAUSE1=>VAL, CLAUSE2=>VAL]
 
 If CLAUSE1 succeeds, then CLAUSE2 must also succeed. Otherwise, nothing is done.
 The second form (2-argument) operates on a clause set (hash) or clause sets
@@ -214,7 +256,7 @@ The second form (2-argument) operates on a clause set (hash) or clause sets
 Example:
 
  # leap year
- [int => {div_by=>4, if => [div_by => 100, div_by => 400]}]
+ [int => {div_by=>4, if_clause => [div_by => 100, div_by => 400]}]
 
 The C<if> clause states that if input number is divisible by 100, it must also
 divisible by 400. Otherwise, the clause fails.
@@ -239,7 +281,7 @@ must be between 1 and 10 characters long.
 The above says that if a string matches 'a' and 'b', it must also match 'c' and
 'd'. As a side note, the above schema can also be written as:
 
- [str => {if => [ 'match&'=>['a', 'b'], 'match&'=>['c', 'd'] ]}]
+ [str => {if_clause => [ 'match&'=>['a', 'b'], 'match&'=>['c', 'd'] ]}]
 
 =head3 check => EXPR
 
@@ -289,8 +331,8 @@ Examples:
 =head1 ROLE: HasElems
 
 This is the role for types that have the notion of elements/length. It provides
-clauses like C<max_len>, C<len>, C<len_between>, C<all_elems>, C<elems>, etc. It
-is used by 'array', 'hash', and also 'str'.
+clauses like C<max_len>, C<len>, C<len_between>, C<each_elem>, etc. It is used
+by C<array>, C<hash>, and also C<str>.
 
 =head2 Clauses
 
@@ -338,7 +380,7 @@ Examples:
  # requires that array does not have element 'x'
  [array => {'!has' => 'x'}]
 
-=head3 all_elems => SCHEMA
+=head3 each_elem => SCHEMA
 
 Requires that every element of the data validate to the specified schema.
 
@@ -346,11 +388,11 @@ Note: filters applied by SCHEMA to elements will be preserved.
 
 Examples:
 
- [array => {all_elems => 'int'}]
+ [array => {each_elem => 'int'}]
 
 The above specifies an array of ints.
 
- [hash => {all_elems => [str => { match => '^[A-Za-z0-9]+$' }]}]
+ [hash => {each_elem => [str => { match => '^[A-Za-z0-9]+$' }]}]
 
 The above specifies hash with alphanumeric-only values.
 
@@ -408,6 +450,77 @@ Example invalid array (key C<min_len> is not allowed):
 
 Note: You need to be careful with undef, because it matches all schema unless
 req=>1 (or the shortcut 'foo*') is specified.
+
+=head3 if => HASH (EXPERIMENTAL, UNFINISHED)
+
+A generic condition clause. Condition can be data (the data being validated
+itself), type property
+
+Syntax not yet fixed. Draft:
+
+ # condition keys: C<expr> (or C<eval_true>?), C<prop>, C<not>, C<validates>
+
+ # action keys: C<{then,else}_{schema,ok,nok}>.
+
+ if => {expr=>'an arbitrary expression ...',
+        then_schema=>SCHEMA1,
+        else_schema=>SCHEMA2}
+ if => {prop=>'property_name', not=>1, expr=>'$_>1',
+        then_nok=>1, else_ok=>1}
+ if => {..., then_ok=>1, else_nok=>1}
+ # then_clause?
+ # then_cset?
+
+Aside from passing/failing, also return either the C<then_schema> (if condition
+matches) or the C<else_schema> (if condition does not matches) result.
+
+Some examples:
+
+ [str => {if=>{expr=>'length($data) >= 2', then_nok=>1}}]
+ [str => {if=>{data=>1, not=>1, expr=>'length($data)<2', then_nok=>1}}]
+ [str => {if=>{prop=>'length', expr=>'$_<2', then_nok=>1}}]
+ [str => {if=>{prop=>'length', expr=>'$_<2', then_nok=>1}}]
+
+ # equivalent to:
+ [str => {min_len=>2}]
+
+ # require that subject of email is palindrome
+ [email => {if=>{prop=>[header=>{header=>'subject'}],
+                 validates=>'palindrome_str*',
+                 then_ok=>1}}]
+
+=head3 each => HASH (EXPERIMENTAL, UNFINISHED)
+
+A generic looping clause. Schema or expression will be evaluated for each
+element and needs to be true for the clause to pass. Return the last schema or
+expression result.
+
+Example:
+
+ [array => { each=>{         validates=>['str*' => {min_len=>1}]} }]
+ [array => { each=>{elem=>1, validates=>['str*' => {min_len=>1}]} }]
+
+ # equivalent to:
+ [array => {of=>['str*' => {min_len=>1}]}]
+
+ # require that each element is a prime number
+ [array => { each=>{elem=>1, cond_expr=>'is_prime($_)'} }]
+
+ # require that no email headers are empty
+ [email => { each=>{prop=>'headers', validates=>['str*' => {min_len=>1}]} }]
+
+ [email => { each=>{list_expr=>'$_->headers', validates=>['str*' => {min_len=>1}]} }]
+
+=head3 exists => HASH (EXPERIMENTAL, UNFINISHED)
+
+Require that an element matches a schema or expression. Return the first element
+that matches. Keyword: first.
+
+ # require that there is at least a prime number in the array (store it in $p)
+ [array => {
+     exists              => {elem=>1, expr=>'is_prime($_)'},
+     'exists.result_var' => 'p',
+ }]
 
 =head1 ROLE: Sortable
 
@@ -556,7 +669,32 @@ elements are indexed by integers starting from 0).
 
 =head2 Clauses
 
-TBD
+=head3 elems => ARRAY_OF_SCHEMA
+
+Specify that corresponding array element must validate to the schema. Example:
+
+ # Rinci function result envelope
+ [array => {
+     elems => [
+         [int => {between => [100, 999]}],
+         'str',
+         'any',
+         'defhash',
+     ]
+ }]
+
+The above schema validates result envelope, which is an array (see
+L<Rinci::function>). The first element (the status) must be a 3-digit integer.
+The second element (the error message) is a string. The third element (the
+actual result) can be anything. The fourth element (result metadata) is a hash
+containing extra data. Examples of valid data including:
+
+ [404, "Not found"]
+ [200, "OK", [1, 2, 3, 4], {'cmdline.pager'=>'less'}]
+
+=head3 of => SCHEMA
+
+This is just an alias to C<each_elem>.
 
 =head1 TYPE: hash
 

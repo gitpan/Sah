@@ -1,6 +1,6 @@
 package Sah; # just to make PodWeaver happy
 
-our $VERSION = '0.9.2'; # VERSION
+our $VERSION = '0.9.3'; # VERSION
 
 1;
 # ABSTRACT: Schema for data structures (specification)
@@ -15,7 +15,7 @@ Sah - Schema for data structures (specification)
 
 =head1 VERSION
 
-version 0.9.2
+version 0.9.3
 
 =head1 OVERVIEW
 
@@ -93,6 +93,18 @@ clause set.
 B<Base schema>. You can define a schema, declare it as a new type, and then
 write subsequent schemas against that type, along with additional clauses. This
 is very much like subtyping. See L</"BASE SCHEMA"> for more information.
+
+Type can also have B<type property> (not to be confused with properties from the
+DefHash terminology, which map to clauses in Sah). For example, the type C<str>
+can have the following properties: C<length> (an integer). The type
+C<email_address> might have the following properties C<local> (the local part,
+the part before the last C<@>, a string) and C<domain> (the part after the last
+C<@>, a string). Type properties can also have parameters, for example the type
+C<email> might have a property called C<< header(header=>'subject') >>.
+
+Types are usually implemented in the target language using classes, and type
+properties using (class instance) methods. To retrieve a property's value, a
+method with the same name as the property's method is called.
 
 =head1 GENERAL STRUCTURE
 
@@ -211,6 +223,8 @@ Optional definition is useful if you want to provide some defaults (e.g. a
 rudimentary validation for email) but don't mind if the validator already has
 something probably better (a stricter or more precise definition of email).
 
+=head1 TYPE
+
 =head1 CLAUSE
 
 A clause set is a defhash containing clause name (as hash keys), clause value
@@ -302,6 +316,12 @@ This attribute can be used to store more than one values to a clause. Example:
  ['int*' => {"div_by.vals"=>[2, 3, 5]}]
 
 The above schema requires an integer which is divisible by 2, 3, I<and> 5.
+
+If this attribute is set, and the clause attribute is set, then all values from
+both must pass the clause. For example, the previous schema can also be written
+as:
+
+ ['int*' => {div_by=>2, "div_by.vals"=>[3, 5]}]
 
 =item * min_ok, max_ok, min_nok, max_nok => INT
 
@@ -456,6 +476,32 @@ attributes.
 
 This comes from DefHash, mainly used to store translations for B<name>,
 B<summary>, B<description>.
+
+=item * result_var => VARNAME (EXPERIMENTAL)
+
+Specify variable name to store results in.
+
+Aside from pass/failure, a clause or clause set can also produce some value.
+This attribute specifies where to put the results in. The value can then be
+used by referring to the variable in expression. Example:
+
+ [any => {
+     of => [
+         ['str*'   => {min_len=>1, max_len=>10}], # 0
+         ['str*'   => {min_len=>11}],             # 1
+         ['array*' => {}],                        # 2
+         ['hash*'  => {}],                        # 3
+     ],
+    'of.result_var' => 'a',
+ }]
+
+Aside from passing/failing the validation, the C<of> clause above also produces
+an index to the schema in the list which matches. So if you validate an array,
+C<$a> in the schema will be set to 2. If you validate a string with length 12,
+C<$a> will be set to 1. If you pass an empty string (which does not pass the
+C<of> clause, C<$a> will not be set.
+
+Refer to each clause's documentation to find out what value the clause returns.
 
 =back
 

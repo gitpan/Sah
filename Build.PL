@@ -17,12 +17,14 @@ my %module_build_args = (
     "Steven Haryanto <stevenharyanto\@gmail.com>"
   ],
   "dist_name" => "Sah",
-  "dist_version" => "0.9.2",
+  "dist_version" => "0.9.3",
   "license" => "perl",
   "module_name" => "Sah",
   "recommends" => {},
   "recursive_test_files" => 1,
-  "requires" => {},
+  "requires" => {
+    "DefHash" => "v1.0.1"
+  },
   "script_files" => []
 );
 
