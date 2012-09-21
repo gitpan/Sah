@@ -1,6 +1,6 @@
 package Sah;
 
-our $VERSION = '0.9.3'; # VERSION
+our $VERSION = '0.9.4'; # VERSION
 
 1;
 # ABSTRACT: Schema for data structures (specification)
@@ -14,7 +14,7 @@ Sah - Schema for data structures (specification)
 
 =head1 VERSION
 
-version 0.9.3
+version 0.9.4
 
 =head1 AUTHOR
 
