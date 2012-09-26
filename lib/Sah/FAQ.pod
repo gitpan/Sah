@@ -1,6 +1,6 @@
 package Sah::FAQ; # just to make PodWeaver happy
 
-our $VERSION = '0.9.4'; # VERSION
+our $VERSION = '0.9.5'; # VERSION
 
 1;
 # ABSTRACT: Frequently asked questions
@@ -15,7 +15,7 @@ Sah::FAQ - Frequently asked questions
 
 =head1 VERSION
 
-version 0.9.4
+version 0.9.5
 
 =head1 GENERAL
 
@@ -66,6 +66,28 @@ No expression, no function,
 =back
 
 =head1 WRITING SCHEMAS
+
+=head2 What is the difference between the C<keys> and C<req_keys> clauses?
+
+C<req_keys> require keys to I<exist>, but its value is governed by the schema in
+C<keys>. Here are four combination possibilities, each with the schema:
+
+To require a hash key to exist, but its value can be undef:
+
+ ["hash", "keys", {"a": "int"}, "req_keys": ["a"]]
+
+To allow a hash key to not exist, but when it exists it must not be
+undef:
+
+ ["hash", "keys", {"a": "int*"}]
+
+To allow a hash key to not exist, or its value to be undef when exists:
+
+ ["hash", "keys", {"a": "int"}]
+
+To require hash key exist and its value must not be undef:
+
+ ["hash", "keys", {"a": "int*"}, "req_keys": ["a"]]
 
 =head2 How to express "not-something"? Why isn't there a C<not> or C<not_in> clause?
 
