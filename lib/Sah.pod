@@ -1,6 +1,6 @@
 package Sah; # just to make PodWeaver happy
 
-our $VERSION = '0.9.5'; # VERSION
+our $VERSION = '0.9.6'; # VERSION
 
 1;
 # ABSTRACT: Schema for data structures (specification)
@@ -15,7 +15,7 @@ Sah - Schema for data structures (specification)
 
 =head1 VERSION
 
-version 0.9.5
+version 0.9.6
 
 =head1 SPECIFICATION VERSION
 
@@ -288,9 +288,21 @@ letters/numbers/underscores, but it can be a dotted-separated series of parts,
 e.g. C<alt.lang.id_ID>. As with clauses, clause attributes which begin with C<_>
 (underscore) is ignored. You can use this to embed extra data.
 
-Currently known attributes:
+Currently known general attributes:
 
 =over 4
+
+=item * prio : INT
+
+Change the clause's priority for this clause set. Note that this only works for
+clauses which have equal priorities. Otherwise, priority value from clause
+definition takes precedence.
+
+Example:
+
+ // both "min" and "max" clauses have priority of 50, but we want to make sure
+ // that "min" is evaluated first
+ ["int*", {"min=": "some expr", "min.prio": 1, "max": 10}]
 
 =item * is_multi : BOOL (default: 0)
 
@@ -528,6 +540,9 @@ still refer to the data (the string).
  ["str", "check", "is_prime(len($_))"]
 
 =back
+
+Aside from the above general attributes, each clause might recognize its own
+specific attributes. See documentation of respective clauses.
 
 =head2 Clause set merging
 
