@@ -1,6 +1,6 @@
 package Sah::Examples; # just to make PodWeaver happy
 
-our $VERSION = '0.9.6'; # VERSION
+our $VERSION = '0.9.8'; # VERSION
 
 1;
 # ABSTRACT: Examples
@@ -15,7 +15,7 @@ Sah::Examples - Examples
 
 =head1 VERSION
 
-version 0.9.6
+version 0.9.8
 
 =head1 SIMPLE SCHEMAS
 

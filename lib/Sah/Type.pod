@@ -1,6 +1,6 @@
 package Sah::Type; # just to make PodWeaver happy
 
-our $VERSION = '0.9.6'; # VERSION
+our $VERSION = '0.9.8'; # VERSION
 
 1;
 # ABSTRACT: Standard types
@@ -15,7 +15,7 @@ Sah::Type - Standard types
 
 =head1 VERSION
 
-version 0.9.6
+version 0.9.8
 
 =head1 DESCRIPTION
 
@@ -298,7 +298,7 @@ Return value: result of evaluated expression
 Category: constraint.
 
 Evaluate expression, which must evaluate to a true value for this clause to
-succeed. Example:
+succeed. Examples:
 
  // require that string is a palindrome, using a Sah function
  ["str", "check", "is_palindrome($_)"]
@@ -306,20 +306,14 @@ succeed. Example:
  // require that the *length of* string is a prime number
  ["str", "check", "is_prime(len($_))"]
 
- // same thing, using input.prop attribute
- ["str", "check.input.prop", "len", "check", "is_prime($_)"]
+Using the C<.input> attribute, you can change the input. Examples:
+
+ // same as previous schema, but using input.prop attribute
+ ["str", "check.input", ["prop", "len"], "check", "is_prime($_)"]
 
  // check that the email's Subject header is a palindrome
- ["email", "check.input.prop", ["headers", "subject"],
+ ["email", "check.input", ["prop", ["headers", "subject"]],
            "check", "is_palindrome($_)"]
-
- // check that
-
-Evaluate expression against property. Property will be available in expression
-as C<$_>. Example:
-
- // require length of string to be divisible by 3
- ["str", "check_prop": ["len", "$_ % 3 == 0"]
 
 =head3 if : HASH -> ANY
 
@@ -363,62 +357,6 @@ is specified, in which case the default else is C<< "else": 0 >>. Examples:
  // if string is a palindrome, then require it to have length > 5
  "if": {"expr": "is_palindrome($_)", "then_prop": ["len", ["int", "xmin": 5]]}
  "if": {"expr": "is_palindrome($_)", "then_expr": "len($_) > 5"}
-
-=head3 each : SCHEMA
-
-Priority: 50 (normal)
-
-Category: constraint, looping
-
-Requires that every element of data validate to the specified schema. The first
-element that fails the schema will terminate the loop.
-
-Examples:
-
- ["array", {"each": "int"}]
- ["array", {"of": "int"}] // same thing, "of" is the same as "each"
-
-The above specifies an array of integers.
-
- ["hash", {"each": ["str", {"match": "^[A-Za-z0-9]+$" }]}]
-
-The above specifies hash with alphanumeric-only values.
-
-Using the C<.input> attribute, you can change the input.
-
-=head3 check_each : EXPR
-
-Priority: 50 (normal)
-
-Category: constraint, looping
-
-Just like C<each> but instead of using schema, each element is tested using
-expression.
-
-Using the C<.input> attribute, you can change the input.
-
-=head3 exists : SCHEMA
-
-Priority: 50 (normal)
-
-Category: constraint, looping
-
-Test that there is at least one element of data that validates to the schema.
-That element is returned. Be careful to not return element which has the value
-which evaluates to false.
-
-Using the C<.input> attribute, you can change the input.
-
-=head3 check_exists : EXPR
-
-Priority: 50 (normal)
-
-Category: constraint, looping
-
-Just like C<exists> but instead of using schema, each element is tested using
-expression.
-
-Using the C<.input> attribute, you can change the input.
 
 =head3 postfilters : [EXPR, ...]
 
@@ -471,8 +409,8 @@ Examples:
 =head1 ROLE: HasElems
 
 This is the role for types that have the notion of elements/length. It provides
-clauses like C<max_len>, C<len>, C<len_between>, C<each>, etc. It is used by
-C<array>, C<hash>, and also C<str>.
+clauses like C<max_len>, C<len>, C<len_between>, C<each_elem>, etc. It is used
+by C<array>, C<hash>, and also C<str>.
 
 =head2 Properties
 
@@ -553,16 +491,43 @@ Examples:
 If set to 1, require that the array values be unique (like in a set). If set to
 0, require that there are duplicates in the array.
 
+=head3 each_elem : SCHEMA
+
+Priority: 50 (normal)
+
+Category: constraint, looping
+
+Requires that every element of data validate to the specified schema. The first
+element that fails the schema will terminate the loop.
+
+Examples:
+
+ ["array", {"each_elem": "int"}]
+ ["array", {"of": "int"}] // same thing, "of" is the same as "each_elem"
+
+The above specifies an array of integers.
+
+ ["hash", {"each_elem": ["str", {"match": "^[A-Za-z0-9]+$" }]}]
+
+The above specifies hash with alphanumeric-only values.
+
+=head3 check_each_elem : EXPR
+
+Priority: 50 (normal)
+
+Category: constraint, looping
+
+Just like C<each_elem> but instead of using schema, each element is tested using
+expression.
+
 =head3 each_index : SCHEMA
 
 Priority: 50 (normal)
 
 Category: constraint, looping
 
-Like C<each> but iterate over the indices. For type like C<array>, this is 0, 1,
-... N. For C<hash>, this is the keys of hash.
-
-Using the C<.input> attribute, you can change the input.
+Like C<each_elem> but iterate over the indices. For type like C<array>, this is
+0, 1, ... N. For C<hash>, this is the keys of hash.
 
 =head3 check_each_index : EXPR
 
@@ -573,7 +538,24 @@ Category: constraint, looping
 Like C<each_index> but instead of using schema, each index is tested using
 expression.
 
-Using the C<.input> attribute, you can change the input.
+=head3 exists : SCHEMA
+
+Priority: 50 (normal)
+
+Category: constraint, looping
+
+Test that there is at least one element of data that validates to the schema.
+That element is returned. Be careful to not return element which has the value
+which evaluates to false.
+
+=head3 check_exists : EXPR
+
+Priority: 50 (normal)
+
+Category: constraint, looping
+
+Just like C<exists> but instead of using schema, each element is tested using
+expression.
 
 =head1 ROLE: Sortable
 
@@ -749,7 +731,7 @@ containing extra data. Examples of valid data including:
 
 =head3 of : SCHEMA
 
-This is just an alias to C<each>.
+This is just an alias to C<each_elem>.
 
 =head1 TYPE: hash
 
@@ -842,7 +824,15 @@ Alias to C<each_index>.
 
 =head3 each_value : SCHEMA
 
-Alias to C<each>.
+Alias to C<each_elem>.
+
+=head3 check_each_key : EXPR
+
+Alias to C<check_each_index>.
+
+=head3 check_each_value : EXPR
+
+Alias to C<check_each_elem>.
 
 =head1 TYPE: any
 
