@@ -1,6 +1,6 @@
 package Sah::FAQ; # just to make PodWeaver happy
 
-our $VERSION = '0.9.7'; # VERSION
+our $VERSION = '0.9.9'; # VERSION
 
 1;
 # ABSTRACT: Frequently asked questions
@@ -15,7 +15,7 @@ Sah::FAQ - Frequently asked questions
 
 =head1 VERSION
 
-version 0.9.7
+version 0.9.9
 
 =head1 GENERAL
 
