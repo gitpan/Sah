@@ -1,6 +1,6 @@
 package Sah; # just to make PodWeaver happy
 
-our $VERSION = '0.9.9'; # VERSION
+our $VERSION = '0.9.10'; # VERSION
 
 1;
 # ABSTRACT: Schema for data structures (specification)
@@ -15,7 +15,7 @@ Sah - Schema for data structures (specification)
 
 =head1 VERSION
 
-version 0.9.9
+version 0.9.10
 
 =head1 SPECIFICATION VERSION
 
@@ -514,30 +514,6 @@ C<$a> will be set to 2. If you pass an empty string (which does not pass the
 C<of> clause, C<$a> will not be set.
 
 Refer to each clause's documentation to find out what value the clause returns.
-
-=item * input : [KIND, ...]
-
-Normally, a clause tests data. With this attribute, you can change the input to
-something else. Possible values:
-
- ["prop", PROP] // test data's property instead of data itself
- ["expr", EXPR] // test arbitrary expression
- ["schema", SCHEMA] // test return value of schema
- ["clause", CLAUSE, ARG] // test return value of a clause
-
-Examples:
-
- // string whose length is a prime number
- ["str", "check.input", ["prop", "len"], "check", "is_prime($_)"]
-
-Without C<check.input> set to the C<len> property, C<$_> in the expression will
-still refer to the data (the string).
-
- // same thing but using expr input
- ["str", "check.input", ["expr", "len($_)"], "check", "is_prime($_)"]
-
- // it's basically a fancy way of saying ...
- ["str", "check", "is_prime(len($_))"]
 
 =back
 
