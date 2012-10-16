@@ -1,6 +1,6 @@
 package Sah; # just to make PodWeaver happy
 
-our $VERSION = '0.9.10'; # VERSION
+our $VERSION = '0.9.11'; # VERSION
 
 1;
 # ABSTRACT: Schema for data structures (specification)
@@ -15,7 +15,7 @@ Sah - Schema for data structures (specification)
 
 =head1 VERSION
 
-version 0.9.10
+version 0.9.11
 
 =head1 SPECIFICATION VERSION
 
@@ -442,8 +442,8 @@ fail. Example:
 
 =item * err_level : STR (default: error)
 
-Valid value: C<error>, C<warn>. Normally, when clause checking fails, an error
-is generated and it causes validation of the whole schema to fail. If
+Valid value: C<fatal>, C<error>, C<warn>. Normally, when clause checking fails,
+an error is generated and it causes validation of the whole schema to fail. If
 C<err_level> is set to C<warn>, however, this only generates a warning and does
 not cause the validation to fail.
 
@@ -462,15 +462,30 @@ C<min_len> clause. The second clause set basically adds an optional restriction
 for the password: when the C<min_len> clause is not satisfied, instead of making
 the data fails the validation, only a warning is issued.
 
+C<fatal> is the same as C<error> but will make validation exit early, without
+collecting further errors. This only takes effect when validation collects full
+errors instead of just stopping after the first error is found.
+
 =item * err_msg[.LANGCODE]
 
 This tells the compiler that instead of the default error message from the type
 handler, a custom error message is supplied. You can add translations by adding
-more attributes. For example:
+more attributes with language code suffixes. For example:
 
  ["str", {"match":                "[^A-Za-z0-9_-]",
-          "match.err_msg"         "Must not contain naughty characters",
+          "match.err_msg":        "Must not contain naughty characters",
           "match.err_msg.id_ID": "Tidak boleh mengandung karakter aneh-aneh"
+ }]
+
+=item * ok_err_msg[.LANGCODE]
+
+Just like C<err_msg>, but this error message will be used when clause succeeds
+and there is C<.min_nok> or C<.max_ok> attributes defined. You can add
+translations by adding more attributes with language code suffix. For example:
+
+ ["str", {"!in": ["root", "admin"], // shortcut for "in": ... + "in.max_ok": 0
+          "in.ok_err_msg":       "Sorry, username is reserved",
+          "in.ok_err_msg.id_ID": "Maaf, nama user dilarang digunakan"
  }]
 
 =item * human[.LANGCODE]
