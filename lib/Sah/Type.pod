@@ -1,6 +1,6 @@
 package Sah::Type; # just to make PodWeaver happy
 
-our $VERSION = '0.9.11'; # VERSION
+our $VERSION = '0.9.12'; # VERSION
 
 1;
 # ABSTRACT: Standard types
@@ -15,7 +15,7 @@ Sah::Type - Standard types
 
 =head1 VERSION
 
-version 0.9.11
+version 0.9.12
 
 =head1 DESCRIPTION
 
@@ -96,6 +96,16 @@ might then update its own implementation to match C<vocal>:
 Notice the matching of C<consonant>'s C<base_v> against C<vocal>'s C<schema_v>.
 C<consonant> might also add its own C<< "schema_v":2 >> so other schemas
 depending on it are forced to adjust, if needed.
+
+=head3 c : ANY
+
+Priority: 0 (checked first before anything else).
+
+Category: metadata
+
+Used to store compiler-specific options in its attributes. Example:
+
+ "c.perl.use_defined_or": 0
 
 =head3 default : ANY
 
@@ -650,11 +660,20 @@ C<int> stores real (floating-point) numbers. This type is derived from C<num>.
 
 =head3 is_nan : BOOL
 
-Require that number is a "NaN" (or "-NaN").
+Require that number is a NaN (e.g. "NaN" or "-NaN" in Perl).
 
 =head2 is_inf : BOOL
 
-Require that number is an "Inf" or "Infinity" (or "-Inf" or "-Infinity").
+Require that number is a positive or negative infinity (e.g. "Inf" or
+"-Infinity" in Perl).
+
+=head2 is_pos_inf : BOOL
+
+Require that number is a positive infinity (e.g. "Inf" or "+Infinity" in Perl).
+
+=head2 is_neg_inf : BOOL
+
+Require that number is a negative infinity (e.g. "-Inf" or "-Infinity" in Perl).
 
 =head1 TYPE: int
 

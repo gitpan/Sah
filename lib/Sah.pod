@@ -1,6 +1,6 @@
 package Sah; # just to make PodWeaver happy
 
-our $VERSION = '0.9.11'; # VERSION
+our $VERSION = '0.9.12'; # VERSION
 
 1;
 # ABSTRACT: Schema for data structures (specification)
@@ -15,7 +15,7 @@ Sah - Schema for data structures (specification)
 
 =head1 VERSION
 
-version 0.9.11
+version 0.9.12
 
 =head1 SPECIFICATION VERSION
 
@@ -534,6 +534,19 @@ Refer to each clause's documentation to find out what value the clause returns.
 
 Aside from the above general attributes, each clause might recognize its own
 specific attributes. See documentation of respective clauses.
+
+=item * c.COMPILER
+
+This is a namespace for specifying compiler options. Each compiler will have its
+specific options; see documentation on respective compiler to see available
+options. For example:
+
+ // skip clauses which are not implemented in JavaScript. we'll check on the
+ // server-side anyway.
+ ["str", {
+   "soundex": "E460",
+   "c.js.ignore_missing_clause_handler": true
+ }]
 
 =head2 Clause set merging
 
