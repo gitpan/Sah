@@ -1,6 +1,6 @@
 package Sah::Type; # just to make PodWeaver happy
 
-our $VERSION = '0.9.12'; # VERSION
+our $VERSION = '0.9.13'; # VERSION
 
 1;
 # ABSTRACT: Standard types
@@ -15,7 +15,7 @@ Sah::Type - Standard types
 
 =head1 VERSION
 
-version 0.9.12
+version 0.9.13
 
 =head1 DESCRIPTION
 
@@ -371,8 +371,6 @@ C<ELSE> result.
 
 Category: constraint.
 
-Attributes specific to this clause: C<cond_input>.
-
 A generic condition clause. C<COND>, C<THEN>, and C<ELSE> are either boolean
 values, expressions (if they are string) or a clause set (if they are hash) or a
 schema (if they are array). C<COND> is evaluated, if the result is true then
@@ -395,6 +393,15 @@ Examples:
 
  // if string is a palindrome, then require it to have length > 5
  "if": [{"check": "is_palindrome($_)"}, ["len", ["int", "xmin": 5]]]
+
+Note that you have to write schema in array form instead of string form, to
+avoid ambiguity with expression:
+
+ // parsed as expression, wrong!
+ "if": ["int", true]
+
+ // correct
+ "if": [["int"], true]
 
 =head3 postfilters : [EXPR, ...]
 
