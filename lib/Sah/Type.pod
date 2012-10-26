@@ -1,6 +1,6 @@
 package Sah::Type; # just to make PodWeaver happy
 
-our $VERSION = '0.9.15'; # VERSION
+our $VERSION = '0.9.16'; # VERSION
 
 1;
 # ABSTRACT: Standard types
@@ -15,7 +15,7 @@ Sah::Type - Standard types
 
 =head1 VERSION
 
-version 0.9.15
+version 0.9.16
 
 =head1 DESCRIPTION
 
@@ -709,8 +709,8 @@ valid but 1, 3, 5 are not.
 =head1 TYPE: str
 
 C<str> stores strings (text). This type assumes the Comparable, Sortable, and
-HasElems roles (the elements are individual characters). Default encoding is
-utf8.
+HasElems roles (the elements are individual characters, the indices are integers
+from 0 to (length of string)-1). Default encoding is utf8.
 
 =head2 Clauses
 
@@ -758,10 +758,18 @@ string.
 
 Boolean type. This type assumes the Comparable and Sortable roles.
 
+=head2 Clauses
+
+=head3 is_true => BOOL
+
+Check that value is true. This is a more portable way than comparing to a value
+using C<is>. To check that value is false, set this clause to a false value.
+Alternatively you can also use C<< "!is_true": 1 >>.
+
 =head1 TYPE: array
 
-Array type. This type assumes the Comparable, Sortable, and HasElems roles (the
-elements are indexed by integers starting from 0).
+Array type. This type assumes the Comparable and HasElems roles (the elements
+are indexed by integers starting from 0).
 
 =head2 Clauses
 
@@ -794,8 +802,8 @@ This is just an alias to C<each_elem>.
 
 =head1 TYPE: hash
 
-Hash (a.k.a. dictionary) type. This type assumes the Comparable, Sortable, and
-HasElems roles (the elements are indexed by strings).
+Hash (a.k.a. dictionary) type. This type assumes the Comparable and HasElems
+roles (the elements are hash values, the indices are hash keys).
 
 =head2 Properties
 
