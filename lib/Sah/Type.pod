@@ -1,6 +1,6 @@
 package Sah::Type; # just to make PodWeaver happy
 
-our $VERSION = '0.9.16'; # VERSION
+our $VERSION = '0.9.17'; # VERSION
 
 1;
 # ABSTRACT: Standard types
@@ -15,7 +15,7 @@ Sah::Type - Standard types
 
 =head1 VERSION
 
-version 0.9.16
+version 0.9.17
 
 =head1 DESCRIPTION
 
@@ -80,8 +80,9 @@ However, if C<vocal> changes its implementation or structure to:
  // the new vocal
  ["str", {"match": "\\A[aeiou]\\z"}]
 
-then B<vocal> will break. To force B<consonant> to fail (so its author can
-update it):
+then B<consonant> will silently break because of clash (overriding) in the
+C<match> clause. To force B<consonant> to fail (so its author can update it,
+should the authors of C<vocal> and C<consonant> are two different persons):
 
  // the new vocal
  ["str", {"schema_v": 2, "match": "\\A[aeiou]\\z"}]
@@ -91,7 +92,7 @@ by C<consonant>, having the default value of C<base_v>). C<consonant>'s author
 might then update its own implementation to match C<vocal>:
 
  // the adjusted consonant
- ["str", {"base_v":2, "cset":{"match":"\\A[a-z]\\z"}, "match.max_ok":0}]
+ ["vocal", {"base_v":2, "cset":{"match":"\\A[a-z]\\z"}, "match.max_ok":0}]
 
 Notice the matching of C<consonant>'s C<base_v> against C<vocal>'s C<schema_v>.
 C<consonant> might also add its own C<< "schema_v":2 >> so other schemas
@@ -463,6 +464,34 @@ by C<array>, C<hash>, and also C<str>.
 
 =head3 elems : ARRAY
 
+Attributes: C<create_default> (bool, default: 1).
+
+Specify schemas for each element of the array. Example:
+
+ ["array", "elems", ["int*", "float"]]
+
+Valid values include C<[1]>, C<[1, undef]>, C<[1, 1.1]>, C<[1, 1.1, "foo"]>.
+Invalid values include C<[]> (first element is a required int), C<[1, "foo"]>
+(second element does not validate).
+
+If there are not enough elements in the data, they will be assumed to be C<null>
+(undefined value). Extra elements in the data are ignored.
+
+The C<.create_default> attribute regulates whether missing elements should be
+set with default values if they do not exist in the data. Example:
+
+ ["array", "elems", ["int*", ["float", "default", 2]]]
+
+In the last example, C<[1]> will become C<[1, 2]> after validation. However
+with:
+
+ ["array",
+     "elems", ["int*", ["float", "default", 2]],
+     "elems.create_default", 0]
+
+C<[1]> will still become C<[1]> after validation. In both cases, C<[1, undef]>
+will become C<[1, 2]>.
+
 =head3 indices : ARRAY
 
 =head2 Clauses
@@ -674,16 +703,16 @@ C<int> stores real (floating-point) numbers. This type is derived from C<num>.
 
 Require that number is a NaN (e.g. "NaN" or "-NaN" in Perl).
 
-=head2 is_inf : BOOL
+=head3 is_inf : BOOL
 
 Require that number is a positive or negative infinity (e.g. "Inf" or
 "-Infinity" in Perl).
 
-=head2 is_pos_inf : BOOL
+=head3 is_pos_inf : BOOL
 
 Require that number is a positive infinity (e.g. "Inf" or "+Infinity" in Perl).
 
-=head2 is_neg_inf : BOOL
+=head3 is_neg_inf : BOOL
 
 Require that number is a negative infinity (e.g. "-Inf" or "-Infinity" in Perl).
 
@@ -819,7 +848,8 @@ Alias for C<HasElems>' C<elems>.
 
 =head3 keys : HASH
 
-Attributes: C<restrict> (bool, default: 1)
+Attributes: C<restrict> (bool, default: 1), C<create_default> (bool, default:
+1).
 
 Specify schema for specific pair value. Also, by default, restrict keys of hash
 to the list specified in this clause, except if the C<.restrict> attribute is
@@ -847,6 +877,23 @@ Another example:
 The above schema specifies a hash with definition for the value of its C<a>,
 C<b>, and C<c> keys. But other keys like C<d> are allowed since the C<keys>
 clause is set to not restrict keys.
+
+The C<.create_default> attribute regulates whether keys should be created with
+default values if they do not exist in the data. For example:
+
+ ["hash", "keys": {"a": "int", "b": ["int", "default": 2]}]
+
+Given data C<{}>, by default it will be given defaults so it becomes C<{"b":
+2}>. C<a> is not created because it does not have a default value. However, if
+C<.create_default> is set to false:
+
+ ["hash",
+     "keys", {"a": "int", "b": ["int", "default": 2]},
+     "keys.create_default", 0
+ ]
+
+then C<{}> will still become C<{}> after validation. In both cases, C<{"b":
+null}> will still become C<{"b": 2}>.
 
 =head3 re_keys : HASH
 

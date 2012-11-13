@@ -15,4 +15,5 @@ lib/Sah/FAQ.pod
 lib/Sah/Type.pod
 share/shared-files.tar.gz
 t/00-compile.t
+t/release-rinci.t
 weaver.ini

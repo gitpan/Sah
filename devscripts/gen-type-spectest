@@ -752,7 +752,7 @@ sub gen_array_tests {
 
     local $Type = "array";
 
-    (
+    push @res, (
         gen_type_check_tests(
             accept => [[], [1, "a"], [[]]],
             reject => [1, "a", {}],
@@ -782,6 +782,67 @@ sub gen_array_tests {
             nok_each_elem  => "int",
         ),
     );
+
+    my $sch = [array => {elems => ["int", ["int", default=>2]]}];
+    push @res, (
+        {
+            name   => 'elems (nok, first elem required)',
+            input  => [],
+            schema => $sch,
+            valid  => 0,
+        },
+        {
+            name   => 'elems (ok, missing elem set to undef)',
+            input  => [1],
+            schema => $sch,
+            valid  => 1,
+        },
+        {
+            name   => 'elems (ok, second elem optional)',
+            input  => [1, undef],
+            schema => $sch,
+            valid  => 1,
+        },
+        {
+            name   => 'elems (ok 2)',
+            input  => [1, 1.1],
+            schema => $sch,
+            valid  => 1,
+        },
+        {
+            name   => 'elems (ok, extra elems ignored)',
+            input  => [1, 1.1, undef],
+            schema => $sch,
+            valid  => 1,
+        },
+        {
+            name   => 'elems (ok, extra elems ignored 2)',
+            input  => [1, 1.1, "foo"],
+            schema => $sch,
+            valid  => 1,
+        },
+    );
+
+    $sch = [array => {elems => ["int", ["int", default=>2]],
+                      "elems.create_default"=>0}];
+    push @res, (
+        {
+            name   => 'elems (ok, create_default=0)',
+            input  => [1],
+            schema => $sch,
+            valid  => 1,
+            output => [1],
+        },
+        {
+            name   => 'elems (ok 2, create_default=0)',
+            input  => [1, undef],
+            schema => $sch,
+            valid  => 1,
+            output => [1, 2],
+        },
+    );
+
+    @res;
 }
 
 sub gen_str_tests {
@@ -790,7 +851,7 @@ sub gen_str_tests {
 
     local $Type = "str";
 
-    (
+    push @res, (
         gen_type_check_tests(
             accept => [0, 1.1, "", "str\n"],
             reject => [[], {}],
@@ -824,18 +885,63 @@ sub gen_str_tests {
             nok_each_elem  => "float",
         ),
 
-        # XXX match
-        # XXX is_re
+        {
+            name   => 'match: (ok)',
+            input  => "a",
+            schema => [str => match => "[abc]"],
+            valid  => 1,
+        },
+        {
+            name   => 'match: (nok)',
+            input  => "z",
+            schema => [str => match => "[abc]"],
+            valid  => 0,
+        },
+        {
+            name   => 'match: (nok, invalid regex)',
+            input  => "a",
+            schema => [str => match => "("],
+            dies   => 1,
+        },
+
+        {
+            name   => 'is_re: 1 (ok)',
+            input  => "a",
+            schema => [str => is_re => 1],
+            valid  => 1,
+        },
+        {
+            name   => 'is_re: 1 (nok)',
+            input  => "a(",
+            schema => [str => is_re => 1],
+            valid  => 0,
+        },
+        {
+            name   => 'is_re: 0 (ok)',
+            input  => "a(",
+            schema => [str => is_re => 0],
+            valid  => 1,
+        },
+        {
+            name   => 'is_re: 0 (nok)',
+            input  => "a",
+            schema => [str => is_re => 0],
+            valid  => 0,
+        },
+
     );
+
+    @res;
 }
 
 sub gen_hash_tests {
     my %args = @_;
     my @res;
+    my ($sch, $sch2);
 
     local $Type = "hash";
 
-    (
+    push @res, (
         gen_type_check_tests(
             accept => [{}, {a=>1}, {""=>[]}],
             reject => [1, "a", []],
@@ -863,8 +969,124 @@ sub gen_hash_tests {
             nok_each_index => [str => len=>2],
             ok_each_elem   => "float",
             nok_each_elem  => "int",
-        ),
+        )
     );
+
+    $sch  = [hash => {keys => {a=>"int", b=>"float*"}}];
+    $sch2 = [hash => {keys => {a=>"int", b=>"float*"}}];
+
+    push @res, (
+        {
+            name   => 'keys: (ok, empty)',
+            input  => {},
+            schema => $sch,
+            valid  => 1,
+        },
+        {
+            name   => 'keys: (ok, only a, a valid 1)',
+            input  => {a=>undef},
+            schema => $sch,
+            valid  => 1,
+        },
+        {
+            name   => 'keys: (ok, only a, a valid 2)',
+            input  => {a=>1},
+            schema => $sch,
+            valid  => 1,
+        },
+        {
+            name   => 'keys: (nok, only a, a invalid)',
+            input  => {a=>1.1},
+            schema => $sch,
+            valid  => 0,
+        },
+        {
+            name   => 'keys: (ok, only a, valid 2)',
+            input  => {a=>1},
+            schema => $sch,
+            valid  => 1,
+        },
+        {
+            name   => 'keys: (ok, a & b, valid)',
+            input  => {a=>1, b=>1.1},
+            schema => $sch,
+            valid  => 1,
+        },
+        {
+            name   => 'keys: (nok, a & b, b invalid)',
+            input  => {a=>1, b=>undef},
+            schema => $sch,
+            valid  => 0,
+        },
+        {
+            name   => 'keys: (nok, a & b, a invalid)',
+            input  => {a=>1.1, b=>1.1},
+            schema => $sch,
+            valid  => 0,
+        },
+        {
+            name   => 'keys: (nok, a & b, a & b invalid)',
+            input  => {a=>1.1, b=>undef},
+            schema => $sch,
+            valid  => 0,
+        },
+        {
+            name   => 'keys: (nok, extra)',
+            input  => {a=>1, b=>1.1, c=>1},
+            schema => $sch,
+            valid  => 0,
+        },
+        {
+            name   => 'keys: (ok, extra, restrict=0)',
+            input  => {a=>1, b=>1.1, c=>1},
+            schema => $sch,
+            valid  => 0,
+        },
+    );
+
+
+    $sch = [hash => {keys => {a=>"int", b=>["int", default=>2]}}];
+    push @res, (
+        {
+            name   => 'keys (create_default=1) 1',
+            input  => {},
+            schema => $sch,
+            valid  => 1,
+            output => {b=>2},
+        },
+        {
+            name   => 'keys (create_default=1) 2',
+            input  => {b=>undef},
+            schema => $sch,
+            valid  => 1,
+            output => {b=>2},
+        },
+    );
+    $sch = [hash => {keys => {a=>"int", b=>["int", default=>2]},
+                     "keys.create_default" => 0}];
+    push @res, (
+        {
+            name   => 'keys (create_default=0) 1',
+            input  => {},
+            schema => $sch,
+            valid  => 1,
+            output => {},
+        },
+        {
+            name   => 'keys (create_default=0) 2',
+            input  => {b=>undef},
+            schema => $sch,
+            valid  => 1,
+            output => {b=>2},
+        },
+    );
+
+    # XXX re_keys
+    # XXX req_keys
+    # XXX allowed_keys
+    # XXX allowed_keys_re
+
+    @res;
 }
 
 sub gen_bool_tests {
