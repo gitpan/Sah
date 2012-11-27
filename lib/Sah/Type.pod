@@ -1,6 +1,6 @@
 package Sah::Type; # just to make PodWeaver happy
 
-our $VERSION = '0.9.19'; # VERSION
+our $VERSION = '0.9.20'; # VERSION
 
 1;
 # ABSTRACT: Standard types
@@ -15,7 +15,7 @@ Sah::Type - Standard types
 
 =head1 VERSION
 
-version 0.9.19
+version 0.9.20
 
 =head1 DESCRIPTION
 
@@ -73,7 +73,7 @@ update whenever we change our schema. For example:
  ["str", {"in": ["a", "e", "i", "o", "u"]}]
 
  // schema: consonant, defined in terms of "vocal", by
- ["vocal", {"match": "\\A[a-z]\\z", "in.max_ok": 0}]
+ ["vocal", {"match": "\\A[a-z]\\z", "in.op": "not"}]
 
 However, if C<vocal> changes its implementation or structure to:
 
@@ -92,7 +92,7 @@ by C<consonant>, having the default value of C<base_v>). C<consonant>'s author
 might then update its own implementation to match C<vocal>:
 
  // the adjusted consonant
- ["vocal", {"base_v":2, "cset":{"match":"\\A[a-z]\\z"}, "match.max_ok":0}]
+ ["vocal", {"base_v":2, "cset":{"match":"\\A[a-z]\\z"}, "match.op":"not"}]
 
 Notice the matching of C<consonant>'s C<base_v> against C<vocal>'s C<schema_v>.
 C<consonant> might also add its own C<< "schema_v":2 >> so other schemas
@@ -743,15 +743,11 @@ To match against multiple regexes:
  // string must match either a or b or c
  ["str", {"match|": ["a", "b", "c"]}
 
- // idem, shortcut form
+ // string must NOT match a
  ["str", {"!match": "a"}]
 
  // string must NOT match a nor b nor c (i.e. must match none of those)
- ["str", {"match": [a, b, c], "match.is_multi": 1, "match.max_ok": 0}]
-
- // string must at least not match a or b or c (i.e. if all match, schema fail;
- // if at least one does not match, schema succeeds)
- ["str", {"match": [a, b, c], "match.max_ok": 2}]
+ ["str", {"match": [a, b, c], "match.op": "none"}]
 
 =head3 is_re : BOOL
 
