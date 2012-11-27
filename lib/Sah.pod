@@ -1,6 +1,6 @@
 package Sah; # just to make PodWeaver happy
 
-our $VERSION = '0.9.20'; # VERSION
+our $VERSION = '0.9.21'; # VERSION
 
 1;
 # ABSTRACT: Schema for data structures (specification)
@@ -15,7 +15,7 @@ Sah - Schema for data structures (specification)
 
 =head1 VERSION
 
-version 0.9.20
+version 0.9.21
 
 =head1 SPECIFICATION VERSION
 
@@ -451,6 +451,13 @@ more attributes with language code suffixes. For example:
  ["str", {"match":                "[^A-Za-z0-9_-]",
           "match.err_msg":        "Must not contain naughty characters",
           "match.err_msg.id_ID": "Tidak boleh mengandung karakter aneh-aneh"
+ }]
+
+Another example:
+
+ ["str", {"!in": ["root", "admin"],
+          "in.err_msg":       "Sorry, username is reserved",
+          "in.err_msg.id_ID": "Maaf, nama user dilarang digunakan"
  }]
 
 =item * human[.LANGCODE]
