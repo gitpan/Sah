@@ -1,6 +1,6 @@
 package Sah; # just to make PodWeaver happy
 
-our $VERSION = '0.9.21'; # VERSION
+our $VERSION = '0.9.22'; # VERSION
 
 1;
 # ABSTRACT: Schema for data structures (specification)
@@ -15,7 +15,7 @@ Sah - Schema for data structures (specification)
 
 =head1 VERSION
 
-version 0.9.21
+version 0.9.22
 
 =head1 SPECIFICATION VERSION
 
@@ -324,16 +324,6 @@ Example:
  // that "min" is evaluated first
  ["int*", {"min=": "some expr", "min.prio": 1, "max": 10}]
 
-=item * is_multi : BOOL (default: 0)
-
-This attribute can be used to signify that clause contain multiple (an array of)
-values instead of a single value. Each value will be tested against the clause.
-Example:
-
- ["int*", {"div_by.is_multi": 1, "div_by": [2, 3, 5]}]
-
-The above schema requires an integer which is divisible by 2, 3, I<and> 5.
-
 =item * op : STR
 
 Specify operator for (multiple) clause values. Possible values for this
@@ -402,12 +392,12 @@ attributes, especially clauses that accept argument containing schemas as
 dynamically generated schemas needs the compiler to embed an interpreter or
 compiler in the generated code.
 
-When C<is_expr> attribute is true, and C<is_multi> is also true, then the
-expression is expected to return an array of values. Otherwise, the clause will
-fail. Example:
+When C<is_expr> attribute is true, and C<op> is also one that requires multiple
+clause values (like C<and>, C<or>, C<none>), then the expression is expected to
+return an array of values. Otherwise, the clause will fail. Example:
 
  // number which must be divisible by 2, 3, 5
- ["int", {"div_by.is_expr": 1, "div_by.is_multi": 1, "div_by": "[2, 3, 5]"}]
+ ["int", {"div_by.is_expr": 1, "div_by.op": "and", "div_by": "[2, 3, 5]"}]
 
  // string must not match any of the blacklist
  ["str", {
@@ -424,7 +414,7 @@ C<err_level> is set to C<warn>, however, this only generates a warning and does
 not cause the validation to fail.
 
  // password
- ["str*", {"cset&": [
+ ["str*", {"clset&": [
    {"min_len": 4},
    {"min_len": 8,
     "min_len.err_level": "warn",
@@ -502,11 +492,6 @@ C<of> clause, C<$a> will not be set.
 
 Refer to each clause's documentation to find out what value the clause returns.
 
-=back
-
-Aside from the above general attributes, each clause might recognize its own
-specific attributes. See documentation of respective clauses.
-
 =item * c.COMPILER
 
 This is a namespace for specifying compiler options. Each compiler will have its
@@ -520,6 +505,11 @@ options. For example:
    "c.js.ignore_missing_clause_handler": true
  }]
 
+=back
+
+Aside from the above general attributes, each clause might recognize its own
+specific attributes. See documentation of respective clauses.
+
 =head2 Clause set merging
 
 Clause set merging happens when a schema is based on another schema and the
@@ -527,25 +517,25 @@ child schema's clause set contains merge prefixes (explained later) in its keys.
 For example:
 
  // schema1
- [TYPE1, CSET1]
+ [TYPE1, CLSET1]
 
  // schema2, based on schema1
- [schema1, CSET2]
+ [schema1, CLSET2]
 
  // schema3, based on schema2
- [schema2, CSET3]
+ [schema2, CLSET3]
 
 When compiling/evaluating C<schema2>, Sah will check against C<TYPE1> and
-C<CSET1> and then C<CSET2>. However, when C<CSET2> contains a merge prefix
+C<CLSET1> and then C<CLSET2>. However, when C<CLSET2> contains a merge prefix
 (marked with an asterisk here for illustration), then Sah will check against
-C<TYPE1> and C<< merge(CSET1, *CSET2) >>.
+C<TYPE1> and C<< merge(CLSET1, *CLSET2) >>.
 
 When compiling/evaluating C<schema3>, Sah will check against C<TYPE1> and
-C<CSET1> and then C<CSET2> and then C<CSET3>. However, when C<CSET2> contains a
-merge prefix, then Sah will check against C<TYPE1>, C<< merge(CSET1, *CSET2) >>,
-and then C<CSET3>. When C<CSET2> and C<CSET3> contains merge prefixes, Sah will
-check against C<TYPE1> and C<< merge(CSET1, *CSET2, *CSET3) >>. So merging will
-be done from left to right.
+C<CLSET1> and then C<CLSET2> and then C<CLSET3>. However, when C<CLSET2>
+contains a merge prefix, then Sah will check against C<TYPE1>, C<< merge(CLSET1,
+*CLSET2) >>, and then C<CLSET3>. When C<CLSET2> and C<CLSET3> contains merge
+prefixes, Sah will check against C<TYPE1> and C<< merge(CLSET1, *CLSET2,
+*CLSET3) >>. So merging will be done from left to right.
 
 The base schema's clause set must not contain any merge prefixes.
 

@@ -1,6 +1,6 @@
 package Sah::FAQ; # just to make PodWeaver happy
 
-our $VERSION = '0.9.21'; # VERSION
+our $VERSION = '0.9.22'; # VERSION
 
 1;
 # ABSTRACT: Frequently asked questions
@@ -15,9 +15,11 @@ Sah::FAQ - Frequently asked questions
 
 =head1 VERSION
 
-version 0.9.21
+version 0.9.22
 
 =head1 GENERAL
+
+=head2 General
 
 =head3 Why use a schema (a.k.a "Turing tarpit")? Why not use pure Perl?
 
@@ -58,12 +60,14 @@ started in 2009 and deprecated in 2011 in favor of "Sah".
 
 =item * JSON schema's syntax is simpler.
 
-It's metaschema (schema for the schema) is only about 130 lines. There are no
+Its metaschema (schema for the schema) is only about 130 lines. There are no
 shortcut forms.
 
 =item * JSON schema's features are more limited.
 
 No expression, no function.
+
+=back
 
 =head3 Comparison to Data::Rx?
 
@@ -106,7 +110,7 @@ optional.
 
 In general I am against compiler configuration which changes language behavior.
 In this case, it makes a simple schema like C<int> to have ambiguous meaning (is
-undefined value allowed? Ir not allowed? It depends on compiler configuration).
+undefined value allowed? Or not allowed? It depends on compiler configuration).
 
 =head3 How to express "not-something"? Why isn't there a C<not> or C<not_in> clause?
 
@@ -127,7 +131,7 @@ You can't do this since it will cause a conflict:
 
 However, you can do this:
 
- ["str ", {"cset&": [{"in": ["a","b","c"]}, {"!in": ["x","y","z"]}]}]
+ ["str ", {"clset&": [{"in": ["a","b","c"]}, {"!in": ["x","y","z"]}]}]
 
 =head3 How to express mutual failure ("if A fails, B must also fails")?
 
