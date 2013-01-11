@@ -53,6 +53,21 @@ sub gen_type_check_tests {
 }
 
 # req, forbidden, default
+#
+# args:
+#
+# - value -> used to test 'forbidden'. must be a valid value.
+#
+# - ok_defaults -> used to test 'default' and that default values are still
+# validated, min 1 value
+#
+# - nok_defaults -> see above
+#
+# - ok_clauses -> used to test 'clause' and 'clset'. minimal 2 values, clauses
+# must be different
+#
+# - nok_clauses -> see above.
+#
 sub gen_BaseType_tests {
     my %args = @_;
     my @res;
@@ -109,6 +124,92 @@ sub gen_BaseType_tests {
             valid  => 0,
         };
     }
+
+    # clause
+    push @res, {
+        name   => "clause (dies, unknown clause)",
+        input  => $args{value},
+        schema => ["$Type*", clause=>"foo"],
+        dies   => 1,
+    };
+    push @res, {
+        name   => "clause (ok)",
+        input  => $args{value},
+        schema => ["$Type*", clause=>$args{ok_clauses}[0]],
+        valid  => 1,
+    } if $args{ok_clauses};
+    push @res, {
+        name   => "clause (nok)",
+        input  => $args{value},
+        schema => ["$Type*", clause=>$args{nok_clauses}[0]],
+        valid  => 0,
+        errors => 1,
+    } if $args{ok_clauses};
+
+    # XXX clause 'clause' + .op and/or/none
+
+    push @res, {
+        name   => "clset (dies, unknown clause)",
+        input  => $args{value},
+        schema => ["$Type*", clset=>{foo=>1}],
+        dies   => 1,
+    };
+    push @res, {
+        name   => "clset (dies, unknown attr)",
+        input  => $args{value},
+        schema => ["$Type*", clset=>{min_len=>1, "min_len.foo"=>1}],
+        dies   => 1,
+    };
+    push @res, {
+        name   => "clset (empty = ok)",
+        input  => $args{value},
+        schema => ["$Type*", clset=>{}],
+        valid  => 1,
+    };
+    push @res, {
+        name   => "clset (ignored clause/attr = ok)",
+        input  => $args{value},
+        schema => ["$Type*", clset=>{_foo=>1, "foo._bar"=>2}],
+        valid  => 1,
+    };
+    push @res, {
+        name   => "clset (ok + ok = ok)",
+        input  => $args{value},
+        schema => ["$Type*", clset=>{
+            $args{ok_clauses}[0][0] => $args{ok_clauses}[0][1],
+            $args{ok_clauses}[1][0] => $args{ok_clauses}[1][1],
+        }],
+        valid  => 1,
+    } if $args{ok_clauses};
+    push @res, {
+        name   => "clset (ok + nok = nok)",
+        input  => $args{value},
+        schema => ["$Type*", clset=>{
+            $args{ok_clauses}[0][0]  => $args{ok_clauses}[0][1],
+            $args{nok_clauses}[1][0] => $args{nok_clauses}[1][1],
+        }],
+        valid  => 0,
+    } if $args{ok_clauses};
+    push @res, {
+        name   => "clset (nok + ok = nok)",
+        input  => $args{value},
+        schema => ["$Type*", clset=>{
+            $args{nok_clauses}[0][0] => $args{nok_clauses}[0][1],
+            $args{ok_clauses}[1][0]  => $args{ok_clauses}[1][1],
+        }],
+        valid  => 0,
+    } if $args{ok_clauses};
+    push @res, {
+        name   => "clset (nok + nok = nok)",
+        input  => $args{value},
+        schema => ["$Type*", clset=>{
+            $args{nok_clauses}[0][0] => $args{nok_clauses}[0][1],
+            $args{nok_clauses}[1][0] => $args{nok_clauses}[1][1],
+        }],
+        valid  => 0,
+    } if $args{ok_clauses};
+
+    # XXX clause 'clset' + .op and/or/none
 
     @res;
 }
@@ -183,7 +284,7 @@ sub gen_op_attr_tests {
         schema => [$Type,
                    "$Clause&" => [$args{nok_values}[0], $args{nok_values}[1]]],
         valid  => 0,
-        errors => 2,
+        errors => 1,
     };
 
     push @res, {
@@ -226,7 +327,7 @@ sub gen_op_attr_tests {
                    "$Clause.op"=>"and",
                ],
         valid  => 0,
-        errors => 2,
+        errors => 1,
     };
 
     push @res, {
@@ -342,7 +443,7 @@ sub gen_op_attr_tests {
         input  => $args{input},
         schema => [$Type, $Clause=>$args{ok_values}, "$Clause.op"=>"none"],
         valid  => 0,
-        errors => 2,
+        errors => 1,
     };
 
     @res;
@@ -683,6 +784,25 @@ sub gen_HasElems_tests {
         # XXX exists
     );
 
+    if ($args{elems_test}) {
+        for ($args{elems_test}) {
+            push @res, (
+                {
+                    name   => 'elems (ok)',
+                    input  => $_->{value},
+                    schema => [$Type, elems => $_->{ok}],
+                    valid  => 1,
+                },
+                {
+                    name   => 'elems (nok)',
+                    input  => $_->{value},
+                    schema => [$Type, elems => $_->{nok}],
+                    valid  => 0,
+                },
+            );
+        }
+    }
+
     # XXX multi vals for all clauses
 
     @res;
@@ -703,6 +823,8 @@ sub gen_int_tests {
             value => 2,
             ok_defaults  => [1],
             nok_defaults => [[]],
+            ok_clauses   => [[min=>1], [max=>2]],
+            nok_clauses  => [[min=>3], [xmax=>2]],
         ),
         gen_err_level_tests(
             clause    => 'div_by',
@@ -765,6 +887,8 @@ sub gen_float_tests {
             value => 1.1,
             ok_defaults  => [1.1],
             nok_defaults => [[]],
+            ok_clauses   => [[min=>1], [max=>1.1]],
+            nok_clauses  => [[min=>2], [max=>1]],
         ),
         gen_err_level_tests(
             clause    => 'min',
@@ -795,9 +919,11 @@ sub gen_array_tests {
             reject => [1, "a", {}],
         ),
         gen_BaseType_tests(
-            value => [],
+            value => [1],
             ok_defaults  => [[]],
             nok_defaults => ["a"],
+            ok_clauses   => [[min_len=>0], [max_len=>1]],
+            nok_clauses  => [[min_len=>2], [max_len=>0]],
         ),
         gen_err_level_tests(
             clause    => 'is',
@@ -817,6 +943,9 @@ sub gen_array_tests {
             nok_each_index => [int => xmax => 1],
             ok_each_elem   => "float",
             nok_each_elem  => "int",
+            # 'elems' is actually not part of HasElems currently, but we stick
+            # it in here for the moment. str might get 'elems' too.
+            elems_test     => {value=>[1, 1.2], ok=>["int","float"], nok=>["int","int"]},
         ),
     );
 
@@ -897,6 +1026,8 @@ sub gen_str_tests {
             value => "a",
             ok_defaults  => ["a"],
             nok_defaults => [[]],
+            ok_clauses   => [[match=>"a"], [len=>1]],
+            nok_clauses  => [[match=>"b"], [len=>2]],
         ),
         gen_err_level_tests(
             clause    => 'is',
@@ -920,6 +1051,9 @@ sub gen_str_tests {
             nok_each_index => [int => xmax => 2],
             ok_each_elem   => "str",
             nok_each_elem  => "float",
+            # currently only array has 'elems' clause, and it's not part of
+            # HasELems role
+            #elems_test     => {value=>"abc", ok=>["str","str","str"], nok=>["str","str",[str=>is=>"d"]]},
         ),
 
         {
@@ -935,7 +1069,7 @@ sub gen_str_tests {
             valid  => 0,
         },
         {
-            name   => 'match: (nok, invalid regex)',
+            name   => 'match: (dies, invalid regex)',
             input  => "a",
             schema => [str => match => "("],
             dies   => 1,
@@ -984,9 +1118,11 @@ sub gen_hash_tests {
             reject => [1, "a", []],
         ),
         gen_BaseType_tests(
-            value => {},
+            value => {a=>1},
             ok_defaults  => [{}],
             nok_defaults => ["a"],
+            ok_clauses   => [[min_len=>1], [max_len=>1]],
+            nok_clauses  => [[min_len=>2], [max_len=>0]],
         ),
         gen_err_level_tests(
             clause    => 'is',
@@ -1006,6 +1142,8 @@ sub gen_hash_tests {
             nok_each_index => [str => len=>2],
             ok_each_elem   => "float",
             nok_each_elem  => "int",
+            # currently only array has 'elems' clause, and it's not part of
+            # HasELems role
         )
     );
 
@@ -1143,6 +1281,9 @@ sub gen_bool_tests {
             value => 1,
             ok_defaults  => [1],
             nok_defaults => [[]],
+            # perl-specific, no real bool value
+            #ok_clauses   => [[is_true=>1], [is=>1]],
+            #nok_clauses  => [[is_true=>0], [is=>0]],
         ),
         gen_err_level_tests(
             clause    => 'is',

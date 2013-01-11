@@ -1,6 +1,6 @@
 package Sah::FAQ; # just to make PodWeaver happy
 
-our $VERSION = '0.9.22'; # VERSION
+our $VERSION = '0.9.23'; # VERSION
 
 1;
 # ABSTRACT: Frequently asked questions
@@ -15,7 +15,7 @@ Sah::FAQ - Frequently asked questions
 
 =head1 VERSION
 
-version 0.9.22
+version 0.9.23
 
 =head1 GENERAL
 
@@ -133,7 +133,7 @@ However, you can do this:
 
  ["str ", {"clset&": [{"in": ["a","b","c"]}, {"!in": ["x","y","z"]}]}]
 
-=head3 How to express mutual failure ("if A fails, B must also fails")?
+=head3 How to express mutual failure ("if A fails, B must also fail")?
 
 You can use C<if> clause and negate the clauses. For example:
 
@@ -265,7 +265,7 @@ Steven Haryanto <stevenharyanto@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by Steven Haryanto.
+This software is copyright (c) 2013 by Steven Haryanto.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
