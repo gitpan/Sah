@@ -129,7 +129,7 @@ sub gen_BaseType_tests {
     push @res, {
         name   => "clause (dies, unknown clause)",
         input  => $args{value},
-        schema => ["$Type*", clause=>"foo"],
+        schema => ["$Type*", clause=>[foo => 1]],
         dies   => 1,
     };
     push @res, {
@@ -137,6 +137,17 @@ sub gen_BaseType_tests {
         input  => $args{value},
         schema => ["$Type*", clause=>$args{ok_clauses}[0]],
         valid  => 1,
+    } if $args{ok_clauses};
+    # to test that the existence of clause does not override clauses outside it
+    push @res, {
+        name   => "clause (ok) + clause nok = nok",
+        input  => $args{value},
+        schema => [
+            "$Type*",
+            clause=>$args{ok_clauses}[0],
+            $args{nok_clauses}[1][0] => $args{nok_clauses}[1][1],
+        ],
+        valid  => 0,
     } if $args{ok_clauses};
     push @res, {
         name   => "clause (nok)",
@@ -180,6 +191,19 @@ sub gen_BaseType_tests {
             $args{ok_clauses}[1][0] => $args{ok_clauses}[1][1],
         }],
         valid  => 1,
+    } if $args{ok_clauses};
+    # to test that the existence of clset does not override clauses outside it
+    push @res, {
+        name   => "clset (ok) + clause nok = nok",
+        input  => $args{value},
+        schema => [
+            "$Type*",
+            clset=>{
+                $args{ok_clauses}[0][0] => $args{ok_clauses}[0][1],
+            },
+            $args{nok_clauses}[1][0] => $args{nok_clauses}[1][1],
+        ],
+        valid  => 0,
     } if $args{ok_clauses};
     push @res, {
         name   => "clset (ok + nok = nok)",
