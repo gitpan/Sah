@@ -2,7 +2,21 @@ NAME
     Sah - Schema for data structures (specification)
 
 VERSION
-    version 0.9.26
+    version 0.9.27
+
+HOMEPAGE
+    Please visit the project's homepage at
+    <https://metacpan.org/release/Sah>.
+
+SOURCE
+    Source repository is at <https://github.com/sharyanto/perl-Sah>.
+
+BUGS
+    Please report any bugs or feature requests on the bugtracker website
+    <https://rt.cpan.org/Public/Dist/Display.html?Name=Sah>
+
+    When submitting a bug or request, please include a test-file or a patch
+    to an existing test-file that illustrates the bug or desired feature.
 
 AUTHOR
     Steven Haryanto <stevenharyanto@gmail.com>
