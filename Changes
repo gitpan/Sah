@@ -1,5 +1,24 @@
 Revision history for Sah
 
+0.9.29   2013-11-23 (SHARYANTO)
+
+         - Add spectests for all types and clauses and properties that have not
+           been equipped with them. The spectest is now pretty complete and
+           covers most of the specification document. Some clause attributes and
+           advanced features (like expresssion and function) have not been
+           covered though.
+
+         [INCOMPATIBLE CHANGES]
+
+         - Rename obj properties: 'methods' -> 'meths', 'attributes' -> 'attrs'.
+           This is to be consistent with design principle 'abbreviate when
+           common abbreviation is present and won't introduce ambiguity'.
+
+         [REMOVED FEATURES]
+
+         - Remove hash 'req_keys_re', which doesn't make any sense.
+
+
 0.9.28   2013-11-21 (SHARYANTO)
 
          - No spec changes. Rebuild with updated

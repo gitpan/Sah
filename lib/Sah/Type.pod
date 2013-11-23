@@ -17,7 +17,7 @@ Sah::Type - Standard types
 
 =head1 VERSION
 
-version 0.9.28
+version 0.9.29
 
 =head1 DESCRIPTION
 
@@ -110,13 +110,28 @@ Used to store compiler-specific options in its attributes. Example:
 
  "c.perl.use_defined_or": 0
 
+=head3 ok : ANY -> true
+
+Priority: 1 (very high). This is processed before all other clauses.
+
+Return value: true (always succeeds).
+
+Category: constraint.
+
+Will do nothing. This clause is just a convenience if you want to do nothing (or
+perhaps just use the attributes of this clause to do things). It is the default
+in the C<else> section of the C<if_clause> clause.
+
+To force failure, you can use C<< "!ok": true >>.
+
 =head3 default : ANY
 
 Attributes specific to this clause: C<temp> (bool, default 0, if set to true
 then default value will only be used during validation and at the end data will
 not use this value).
 
-Priority: 1 (very high). This is processed before all other clauses.
+Priority: 1 (very high). This is processed before all other clauses except
+C<ok>.
 
 Category: default.
 
@@ -287,20 +302,6 @@ referred to in expression by variable C<$_>. Prefiltered value should persist
 until the end of all other clauses (until the end of clause set), after which
 the old value can be restored.
 
-=head3 ok : ANY -> true
-
-Priority: 50 (normal)
-
-Return value: true (always succeeds).
-
-Category: constraint.
-
-Will do nothing. This clause is just a convenience if you want to do nothing (or
-perhaps just use the attributes of this clause to do things). It is the default
-in the C<else> section of the C<if_clause> clause.
-
-To force failure, you can use C<< "!ok": 1 >>.
-
 =head3 clause : [CLNAME, CLVAL] -> ANY
 
 Priority: 50 (normal)
@@ -371,7 +372,7 @@ Category: constraint
 Validate property against a schema. Example:
 
  // require that the *length of* string is divisible by 2
- ["str", "prop", ["len", ["int", "div_by", 2"]]]
+ ["str", "prop", ["len", ["int", "div_by", 2]]]
 
 See also: C<check_prop>
 
@@ -491,7 +492,7 @@ by C<array>, C<hash>, and also C<str>.
 
 =head2 Properties
 
-=head3 len : STR
+=head3 len : NUM
 
 =head3 elems : ARRAY
 
@@ -550,7 +551,8 @@ Priority: 50 (normal)
 
 Category: constraint
 
-Requires that the data contains the element.
+Requires that the data contains the element. This is the counterpart of the
+C<in> clause.
 
 Examples:
 
@@ -930,15 +932,12 @@ this schema:
 
 the previous hash will not validate since the value for C<b> is required.
 
+Note: you can also use the C<keys> property to express the same thing, but
+C<req_keys> is more convenient:
+
+ ["hash", "prop", ["keys", ["array", "has&", ["a", "b"]]]]
+
 See also: C<allowed_keys>, C<forbidden_keys>.
-
-=head3 req_keys_re : RE
-
-Like C<req_keys> but using regular expression. Example:
-
- ["hash", "req_keys_re", "^(a|b)$"]
-
-will require keys "a" and "b" to exist.
 
 =head3 allowed_keys : ARRAY
 
@@ -949,6 +948,11 @@ in the value need not exist. Example:
 
 Then hashes C<{}>, C<{"a":1}>, C<{"a":1,"b":2}> all pass, but C<{"a":1,"c":3}>
 fails because it contains keys outside the allowed list.
+
+Note: you can also use the C<keys> property to express the same thing, but
+C<allowed_keys> is more convenient:
+
+ ["hash", "prop", ["keys", ["array", "each_elem", ["str", "in", ["a", "b"]]]]]
 
 See also: C<req_keys>, C<forbidden_keys>.
 
@@ -964,6 +968,11 @@ Specify which keys are forbidden (must not exist). Example:
 
 Then hashes C<{}>, C<{"c":1}> all pass, but C<{"a":1,"c":3}> fails because it
 contains keys in the forbidden list.
+
+Note: you can also use the C<keys> property to express the same thing, but
+C<forbidden_keys> is more convenient:
+
+ ["hash", "prop", ["keys", ["array", "each_elem", ["str", "!in", ["a", "b"]]]]]
 
 See also: C<req_keys>, C<allowed_keys>.
 
@@ -1014,17 +1023,17 @@ Object.
 
 =head2 Properties
 
-=head3 methods
+=head3 meths : ARRAY
 
-=head3 attributes
+=head3 attrs : ARRAY
 
 =head2 Clauses
 
-=head3 can
+=head3 can : STR
 
-=head3 isa
+=head3 isa : STR
 
-=head1 TYPE: date
+=head1 TYPE: date (not yet specified)
 
 =head1 SEE ALSO
 
