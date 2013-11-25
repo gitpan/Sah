@@ -17,7 +17,7 @@ Sah::FAQ - Frequently asked questions
 
 =head1 VERSION
 
-version 0.9.29
+version 0.9.30
 
 =head1 GENERAL
 
