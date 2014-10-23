@@ -1,6 +1,6 @@
 package Sah;
 
-our $VERSION = '0.9.30'; # VERSION
+our $VERSION = '0.9.31'; # VERSION
 
 1;
 # ABSTRACT: Schema for data structures (specification)
@@ -17,7 +17,7 @@ Sah - Schema for data structures (specification)
 
 =head1 VERSION
 
-version 0.9.30
+This document describes version 0.9.31 of Sah (from Perl distribution Sah), released on 2014-10-23.
 
 =head1 HOMEPAGE
 
@@ -25,7 +25,7 @@ Please visit the project's homepage at L<https://metacpan.org/release/Sah>.
 
 =head1 SOURCE
 
-Source repository is at L<https://github.com/sharyanto/perl-Sah>.
+Source repository is at L<https://github.com/perlancar/perl-Sah>.
 
 =head1 BUGS
 
@@ -37,11 +37,11 @@ feature.
 
 =head1 AUTHOR
 
-Steven Haryanto <stevenharyanto@gmail.com>
+perlancar <perlancar@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Steven Haryanto.
+This software is copyright (c) 2014 by perlancar@cpan.org.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

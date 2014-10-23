@@ -8,7 +8,7 @@ use FindBin '$Bin';
 use vars qw($VERSION);
 use Data::Clone;
 use Data::Dump::OneLine qw(dump1);
-use File::Slurp;
+use File::Slurp::Tiny qw(read_file write_file);
 use JSON;
 
 my $json = JSON->new->allow_nonref->pretty(1);
@@ -1538,6 +1538,24 @@ sub _gen_str_or_cistr_or_buf_tests {
             prop_elems_valid_inputs     => $ci ? ["Ab"] : ["ab"],
             prop_elems_invalid_inputs   => $ci ? ["", "b"] : ["", "Ab"],
         ),
+
+        {
+            name   => 'encoding: (ok)',
+            input  => "a",
+            schema => [$which => encoding => "utf8"],
+            valid  => 1,
+            tags   => ['clause:encoding'],
+        },
+
+        # XXX test invalid utf8 string, but how to represent this in JSON?
+
+        {
+            name   => 'encoding: (dies, unknown encoding)',
+            input  => "a",
+            schema => [$which => encoding => "foo"],
+            dies   => 1,
+            tags   => ['clause:encoding'],
+        },
 
         {
             name   => 'match: (ok)',

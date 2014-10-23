@@ -17,7 +17,7 @@ Sah::Type - Standard types
 
 =head1 VERSION
 
-version 0.9.30
+This document describes version 0.9.31 of Sah::Type (from Perl distribution Sah), released on 2014-10-23.
 
 =head1 DESCRIPTION
 
@@ -176,6 +176,12 @@ Example:
  }]
 
 See also: C<summary>, C<description>, C<tags>.
+
+=head3 caption : STR
+
+Priority: 2 (very high), after C<default>.
+
+From DefHash.
 
 =head3 summary : STR
 
@@ -748,6 +754,10 @@ from 0 to (length of string)-1). Default encoding is utf8.
 
 =head2 Clauses
 
+=head3 encoding : str
+
+Specify encoding. Currently the only supported value is C<utf8>.
+
 =head3 match : REGEX|{COMPILER=>REGEX, ...}
 
 Require that string match the specified regular expression.
@@ -1045,7 +1055,7 @@ Please visit the project's homepage at L<https://metacpan.org/release/Sah>.
 
 =head1 SOURCE
 
-Source repository is at L<https://github.com/sharyanto/perl-Sah>.
+Source repository is at L<https://github.com/perlancar/perl-Sah>.
 
 =head1 BUGS
 
@@ -1057,11 +1067,11 @@ feature.
 
 =head1 AUTHOR
 
-Steven Haryanto <stevenharyanto@gmail.com>
+perlancar <perlancar@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Steven Haryanto.
+This software is copyright (c) 2014 by perlancar@cpan.org.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
